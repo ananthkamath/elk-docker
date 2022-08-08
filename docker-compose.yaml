@@ -1,0 +1,57 @@
+version: "3.0"
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    # Switch to the required ES version
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
+    environment:
+      - "discovery.type=single-node"
+    # volumes:
+    #   - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
+    #   - elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+  kibana:
+    container_name: kibana
+    # Switch to the required Kibana version compatible with ES version
+    image: docker.elastic.co/kibana/kibana-oss:7.10.2
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    # volumes:
+    #   - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5601:5601
+  logstash:
+    container_name: logstash
+    # Switch to the required Logstash version compatible with ES version
+    image: docker.elastic.co/logstash/logstash-oss:7.10.2
+    # environment:
+    #   - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    volumes:
+      - ./logstash/config/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+    ports:
+      - 5044:5044
+      - 6782:6782
+  # Nginx is setup to push accesslogs to Elasticsearch and have seed data for visualization
+  # You can comment this out if you do not need it
+  nginx:
+    container_name: nginx
+    image: nginx:latest
+    volumes:
+      - ./var/log/nginx:/var/log/nginx
+    ports:
+      - 80:80
+  # Filebeat setup can be done on any machine from where you are planning to send the data to logstash
+  # If you do not need filebeat on the same machine, please comment this section
+  filebeat:
+    container_name: filebeat
+    image: docker.elastic.co/beats/filebeat-oss:7.10.2
+    volumes:
+      - ./filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - ./var/log/nginx:/var/log/nginx
+    depends_on:
+      - logstash
