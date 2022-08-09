@@ -13,6 +13,8 @@ These instructions will get you a copy of the project up and running on your loc
 What things you need to install the software and how to install them:
 
 - [Docker](https://docs.docker.com/)
+- [Packer](https://www.packer.io/)
+- [Terraform](https://www.terraform.io/)
 
 ### Setup
 
@@ -45,3 +47,27 @@ If you are not seeing the index yet, visit [Nginx Page](http://localhost/) few t
 #### 6. Logs
 
 Once you have created the index visit [discover page](http://localhost:5601/app/discover)
+
+#### 7. Packer
+
+Use packer to build AWS AMI to be used by terraform to deploy on spot instances
+
+```
+cd packer
+packer init .
+packer fmt .
+packer build elk-docker-ami.pkr.hcl
+```
+
+#### 8. Terraform
+
+Use terraform script to spin up ELK Docker on AWS spot instance in default VPC. Feel free to update the terraform config accordingly
+
+```
+cd terraform
+terraform init
+terraform fmt
+terraform validate
+terraform plan -out=tfplan
+terraform apply
+```
