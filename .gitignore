@@ -1,2 +1,21 @@
 /var/*
 .DS_Store
+
+# Local .terraform directories
+**/.terraform/*
+
+# Terraform plan
+**/terraform.plan*
+**/terraform_plan*
+**/tfplan
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
+**/*.tfstate
+**/*.tfstate.*
+
+# Comment *.terraform.lock.hcl when you clone/fork and run the terraform
+*.terraform.lock.hcl
+
+*.tfvars
